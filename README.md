@@ -3,6 +3,15 @@
 ![ZOOM MOODLE diagram](/zoommoodle_flow.png)
 
 
+This job starts by checking for new recordings to process and upload. In case there is a new recording the script will first download it from zoom using the download_url plus the access_token which has to be generated before. Check zoom documentation for how to create JWT tokens.
+
+Once the script has the mp4 file it executes ffmpeg to transcode it into HLS format and adds a watermark. 
+This creates an M3U8 playlist and many chunks of about 10 seconds duration which compose the video. The playlist's size is very small, it's just a list with the list of all the video chunks and can be uploaded into a moodle repository to be use to embed the "video" into the courses. 
+
+The video chunks (.ts files) are upoaded into an S3 bucket using s3 accelerator which is a must. Not using the accelerator is significantly slower.
+
+
+VideoJS has support for HLS
 
 - m3u8 streaming
 - Add watermark
