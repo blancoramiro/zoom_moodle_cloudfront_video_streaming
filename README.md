@@ -110,3 +110,8 @@ CREATE TABLE `zoom_recordings` (
  setcookie('CloudFront-Key-Pair-Id', 'XXXXXXXXXXXXXX', $cfkeys_expires, "/", '.mydomain.com',  true, false);
 
  //CLOUDFRONT PATCH END```
+ 
+ 
+![moodle1](/images/moodle1.png)
+![moodle2](/images/moodle2.png)
+![moodle3](/images/moodle3.png)
