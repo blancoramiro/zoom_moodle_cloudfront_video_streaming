@@ -1,6 +1,6 @@
 # Embed ZOOM recordings into moodle courses from S3 bucket 
 
-
+![ZOOM MOODLE diagram](/zoommoodle_flow.png)
 
 
 
