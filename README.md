@@ -23,10 +23,11 @@ Access to the .ts files (the actual video) is granted through Cloudfront using a
 #EXT-X-MEDIA-SEQUENCE:0
 #EXT-X-PLAYLIST-TYPE:EVENT
 #EXTINF:10.000000,
-https://ucemax-3cew5hyqeg.ucema.edu.ar/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream0.ts
+https://s3bucket-xxxx.mydomain.com/**dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR**/stream0.ts
 #EXTINF:10.000000,
-https://ucemax-3cew5hyqeg.ucema.edu.ar/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream1.ts
+https://s3bucket-xxxx.mydomain.com/**dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR**/stream1.ts
 #EXTINF:10.000000,
+...
 ```
 
 VideoJS has support for HLS
