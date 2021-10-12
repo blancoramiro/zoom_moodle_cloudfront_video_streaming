@@ -13,7 +13,7 @@ The video chunks (.ts files) are upoaded into an S3 bucket using s3 accelerator 
 
 Once the process is completed the recording is marked as complete in the database.
 
-Access to the .ts files (the actual video) is granted through Cloudfront using a private key. There are two ways to grant access either by a signed URL or by signed cookies. During the signing process there is the possibility to grant only access to specific files. In this case we are using cookies during user login since it was faster to implement and we grant access to the directory which holds all the videos. To prevent users from accessing videos outside their curses we used a hashed directory path for every video which is stored in the database and the script modifies the M3U8 playlist. Example:
+Access to the .ts files (the actual video) is granted through Cloudfront using a public-private key (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html). There are two ways to grant access either by a signed URL or by signed cookies. During the signing process there is the possibility to grant only access to specific files. In this case we are using cookies during user login since it was faster to implement and we grant access to the directory which holds all the videos. To prevent users from accessing videos outside their curses we used a hashed directory path for every video which is stored in the database and the script modifies the M3U8 playlist. Example:
 
 
 ```# head  2021-09-16\ 18\:30\:00\ -\ 28143\(e619211a-bbe6-4dc1-bd8e-8eb1e2a70fbc\).m3u8 
@@ -23,19 +23,14 @@ Access to the .ts files (the actual video) is granted through Cloudfront using a
 #EXT-X-MEDIA-SEQUENCE:0
 #EXT-X-PLAYLIST-TYPE:EVENT
 #EXTINF:10.000000,
-https://s3bucket-xxxx.mydomain.com/**dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR**/stream0.ts
+https://s3bucket-xxxx.mydomain.com/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream0.ts
 #EXTINF:10.000000,
-https://s3bucket-xxxx.mydomain.com/**dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR**/stream1.ts
+https://s3bucket-xxxx.mydomain.com/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream1.ts
 #EXTINF:10.000000,
 ...
 ```
 
-VideoJS has support for HLS
 
-- m3u8 streaming
-- Add watermark
-- Easy import from moodle repository
-- Cloudfront private key to restrict access
 
 
 # Example Database table structure
