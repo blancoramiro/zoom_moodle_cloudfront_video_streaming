@@ -2,18 +2,25 @@
 
 ![ZOOM MOODLE diagram](/zoommoodle_flow.png)
 
+This will allow you to automatically import zoom recordings into a moodle repository for course administrators to embed the videos wherever they like so they can be streamed while making them hard to download and with restricted access to logged users only.
 
-This job starts by checking for new recordings to process and upload. In case there is a new recording the script will first download it from zoom using the download_url plus the access_token which has to be generated before. Check zoom documentation for how to create JWT tokens.
+Components: ZOOM JWT, Moodle repository, FFMPEG, S3 bucket with upload accelerator, CloudFront with public-private key and VideoJs.
 
-Once the script has the mp4 file it executes ffmpeg to transcode it into HLS format and adds a watermark. 
-This creates an M3U8 playlist and many chunks of about 10 seconds duration which compose the video. The playlist's size is very small, it's just a list with the list of all the video chunks and can be uploaded into a moodle repository to be use to embed the "video" into the courses. 
+Main script: get_mp4_and_process.py
+
+This job starts by checking for new recordings to process and upload. In case there is a new recording the script will first fetch it from zoom using the download_url plus the access_token which has to be generated prior to the download. Check zoom documentation on how to create JWT tokens.
+
+Once the script has the mp4 file it executes ffmpeg which transcodes it into HLS format and adds a watermark. 
+This creates an M3U8 playlist and many chunks of about 10 seconds duration which compose the video. The playlist's size is very small, it's just a list of all the video chunks and can be uploaded into a moodle repository to be use to embed the "video" into the courses. 
 https://docs.moodle.org/311/en/File_system_repository
 
-The video chunks (.ts files) are upoaded into an S3 bucket using s3 accelerator which is a must. Not using the accelerator is significantly slower.
+The video chunks (.ts files) are uploaded into an S3 bucket using s3 accelerator which is a must. Not using the accelerator is significantly slower.
 
 Once the process is completed the recording is marked as complete in the database.
 
-Access to the .ts files (the actual video) is granted through Cloudfront using a public-private key (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html). There are two ways to grant access either by a signed URL or by signed cookies. During the signing process there is the possibility to grant only access to specific files. In this case we are using cookies during user login since it was faster to implement and we grant access to the directory which holds all the videos. To prevent users from accessing videos outside their curses we used a hashed directory path for every video which is stored in the database and the script modifies the M3U8 playlist. Example:
+The .m3u8 files must be on the moodle repository, either by running the script locally or copying them, rsync, scp, etc. These are the files the courses administrators will use to embed the videos.
+
+Access to the .ts files (the actual video) is granted through Cloudfront using a public-private key (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html). There are two ways to grant access either by a signed URL or by signed cookies. During the signing process there is the possibility to grant only access to specific files. In this case we are using cookies during user login since it was faster to implement and we grant access to the directory which holds all the videos. To prevent users from accessing videos outside their courses we used a hashed directory path for every video which is stored in the database and the script modifies the M3U8 playlist. Example:
 
 
 ```# head  2021-09-16\ 18\:30\:00\ -\ 28143\(e619211a-bbe6-4dc1-bd8e-8eb1e2a70fbc\).m3u8 
@@ -30,6 +37,11 @@ https://s3bucket-xxxx.mydomain.com/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream1.ts
 ...
 ```
 
+Finally CloudFront and S3 bucket must be configured to serve the files. https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
+This is pretty straight forward but some considerations must be taken:
+
+Cookies must be configured in the origin policies.
+CORS configuration for the moodle to be able to access the files.
 
 
 
