@@ -7,9 +7,27 @@ This job starts by checking for new recordings to process and upload. In case th
 
 Once the script has the mp4 file it executes ffmpeg to transcode it into HLS format and adds a watermark. 
 This creates an M3U8 playlist and many chunks of about 10 seconds duration which compose the video. The playlist's size is very small, it's just a list with the list of all the video chunks and can be uploaded into a moodle repository to be use to embed the "video" into the courses. 
+https://docs.moodle.org/311/en/File_system_repository
 
 The video chunks (.ts files) are upoaded into an S3 bucket using s3 accelerator which is a must. Not using the accelerator is significantly slower.
 
+Once the process is completed the recording is marked as complete in the database.
+
+Access to the .ts files (the actual video) is granted through Cloudfront using a private key. There are two ways to grant access either by a signed URL or by signed cookies. During the signing process there is the possibility to grant only access to specific files. In this case we are using cookies during user login since it was faster to implement and we grant access to the directory which holds all the videos. To prevent users from accessing videos outside their curses we used a hashed directory path for every video which is stored in the database and the script modifies the M3U8 playlist. Example:
+
+
+```# head  2021-09-16\ 18\:30\:00\ -\ 28143\(e619211a-bbe6-4dc1-bd8e-8eb1e2a70fbc\).m3u8 
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:EVENT
+#EXTINF:10.000000,
+https://ucemax-3cew5hyqeg.ucema.edu.ar/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream0.ts
+#EXTINF:10.000000,
+https://ucemax-3cew5hyqeg.ucema.edu.ar/dVtPqIYlp0bHIGCuM9bwgQM0Nt3CtR/stream1.ts
+#EXTINF:10.000000,
+```
 
 VideoJS has support for HLS
 
